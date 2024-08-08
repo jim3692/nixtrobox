@@ -14,6 +14,7 @@ in {
       "--ipc=host"
       "--network=host"
       "--pid=host"
+      "--pull=always"
     ];
     volumes = [
       "/:/run/host:rslave"
