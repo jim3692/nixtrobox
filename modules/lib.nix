@@ -35,7 +35,7 @@ in {
         "${home}/.nix-profile/share/terminfo"
         "/nix/profile/share/terminfo"
         "${home}/.local/state/nix/profile/share/terminfo"
-        "/etc/profiles/per-user/alice/share/terminfo"
+        "/etc/profiles/per-user/${username}/share/terminfo"
         "/nix/var/nix/profiles/default/share/terminfo"
         "/run/current-system/sw/share/terminfo"
       ]);
