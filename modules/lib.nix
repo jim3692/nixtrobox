@@ -43,19 +43,27 @@ in {
     entrypoint = with pkgs;
       let
         idCommand = "${coreutils}/bin/id";
+        gitCommand = "${git}/bin/git";
         executeOnHost = "nsenter -t 1 -m -u -n -i";
+
+        hostRuntimeDir = "/run/host/run/user";
+
         initScript = writeShellScriptBin "init" ''
+          # Install host-spawn
+          ${distrobox}/bin/distrobox-host-exec --yes yes
+
+          # Get User and Group IDs from host
           read -r uid gid <<<$(
             ${executeOnHost} ${bash}/bin/bash -c 'printf "%s %s\n" `${idCommand} -u ${username}` `${idCommand} -g ${username}`'
           )
 
+          # Bind mount host's $XDG_RUNTIME_DIR to container
           mkdir -p /run/user/$uid
-
-          hostRuntime="/run/host/run/user"
           echo "Waiting for /run/user/$uid to appear ..."
-          [ ! -d $hostRuntime/$uid ] && ${inotify-tools}/bin/inotifywait -e create,moved_to,attrib --include "/$uid" -qq $hostRuntime
-          mount --rbind -o rslave $hostRuntime/$uid /run/user/$uid
+          [ ! -d ${hostRuntimeDir}/$uid ] && ${inotify-tools}/bin/inotifywait -e create,moved_to,attrib --include "/$uid" -qq $hostRuntime
+          mount --rbind -o rslave ${hostRuntimeDir}/$uid /run/user/$uid
 
+          # Execute distrobox's inialization
           ${distrobox}/bin/distrobox-init \
             -n ${username} \
             -u $uid -g $gid \
