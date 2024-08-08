@@ -1,6 +1,14 @@
 { pkgs }:
 
-let lib = pkgs.lib;
+let
+  lib = pkgs.lib;
+  mkShims = binaries: ''
+    set -e
+    export PATH=$PATH:${pkgs.coreutils}/bin
+    mkdir -p $out
+    cd $out
+    ${lib.strings.concatStrings (builtins.map (bin: "ln -s ${bin} $(basename ${bin})\n") binaries)}
+  '';
 
 in {
   getArchContainer = { username, home, mounts ? [ ], additionalPackages ? [ ] }: {
@@ -28,6 +36,15 @@ in {
       "/etc/static/profiles:/etc/static/profiles:ro"
       "/etc/hosts:/etc/hosts:ro"
       "/etc/resolv.conf:/etc/resolv.conf:ro"
+
+      # Prepend container's `passwd` and `sudo` to $PATH, to prevent conflicts with NixOS's versions
+      "${derivation {
+        name = "arch-shims";
+        builder = "${pkgs.bash}/bin/bash";
+        args = [ "-c" (mkShims [ "/usr/bin/passwd" "/usr/bin/sudo" ]) ];
+        system = builtins.currentSystem;
+      }}:/run/shims:ro"
+      "${builtins.toFile "shims.sh" "export PATH=\"/run/shims:$PATH\""}:/etc/profile.d/shims.sh"
     ] ++ mounts;
     environment = {
       container = "docker";
