@@ -3,7 +3,7 @@
 let lib = pkgs.lib;
 
 in {
-  getArchContainer = { username, home, additionalPackages ? [ ] }: {
+  getArchContainer = { username, home, mounts ? [ ], additionalPackages ? [ ] }: {
     image = "archlinux:latest";
     extraOptions = [
       "--privileged"
