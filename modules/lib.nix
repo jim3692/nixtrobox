@@ -22,7 +22,10 @@ in {
       "/dev:/dev:rslave"
       "/sys:/sys:rslave"
       "${home}:${home}:rslave"
-      "/nix/store:/nix/store:ro"
+      "/nix:/nix:ro"
+      "/run/current-system:/run/current-system:ro"
+      "/etc/profiles:/etc/profiles:ro"
+      "/etc/static/profiles:/etc/static/profiles:ro"
       "/etc/hosts:/etc/hosts:ro"
       "/etc/resolv.conf:/etc/resolv.conf:ro"
     ] ++ mounts;
