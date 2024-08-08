@@ -24,7 +24,7 @@ in {
       "/nix/store:/nix/store:ro"
       "/etc/hosts:/etc/hosts:ro"
       "/etc/resolv.conf:/etc/resolv.conf:ro"
-    ];
+    ] ++ mounts;
     environment = {
       container = "docker";
       SHELL = "/bin/bash";
